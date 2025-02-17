@@ -1,0 +1,29 @@
+from abc import ABC, abstractproperty
+from typing import Callable, Literal
+
+from iugu.config import Config
+from iugu.http_client.http_response import HttpResponse
+from iugu.http_client.protocols import HttpClient
+
+
+class BaseHandler(ABC):
+    def __init__(self, http_client: HttpClient, config: Config) -> None:
+        self._http_client = http_client
+        self._config = config
+
+    @abstractproperty
+    def base_endpoint(self) -> str:
+        pass
+
+    async def request(
+        self,
+        method: Literal["get", "post", "put", "patch", "delete"],
+        url: str,
+        json={},
+        files=None,
+    ) -> HttpResponse:
+        http_method: Callable = getattr(self._http_client, method)
+        self._http_client.authenticate(
+            type="basic", username=self._config.get_api_key(), password=""
+        )
+        return await http_method(url=url, json=json, headers={}, files=files)
