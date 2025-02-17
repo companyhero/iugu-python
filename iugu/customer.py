@@ -1,63 +1,47 @@
-# -*- coding: utf-8 -*-
+from dataclasses import dataclass
+from typing import Any, Literal
+from uuid import uuid1
 
-from iugu.action import Action
-from iugu.exception import RequiredParameters
-
-
-class Customer(Action):
-
-    def create(self, data):
-        if not data.get('email', None):
-            raise RequiredParameters('Customer email not informed')
-        url = self.api.make_url(['customers'])
-        return super(Customer, self).create(url, data)
-
-    def search(self, id):
-        url = self.api.make_url(['customers', id])
-        return super(Customer, self).search(url)
-
-    def change(self, id, data):
-        url = self.api.make_url(['customers', id])
-        return super(Customer, self).change(url, data)
-
-    def remove(self, id):
-        url = self.api.make_url(['customers', id])
-        return super(Customer, self).remove(url)
-
-    def list(self, data={}):
-        url = self.api.make_url(['customers'])
-        return super(Customer, self).list(url, data)
+from iugu.address import Address
 
 
-class PaymentMethod(Action):
+@dataclass
+class Customer:
+    name: str
+    email: str
+    documentation: str
+    address: Address
+    code: Any = uuid1()
+    notes: str = ""
 
-    def __init__(self, customer_id):
-        self.customer_id = customer_id
-        self.base_url_paths = ['customers', self.customer_id,
-                               'payment_methods']
-        super(PaymentMethod, self).__init__()
+    def __post_init__(self) -> None:
+        self._phone: dict[str, str] = {}
+        self._status: Literal["active", "inactive"]
 
-    def create(self, data):
-        if not data.get('token', None) and not data.get('data', {}):
-            raise RequiredParameters('Please, inform token or card data{} to create a Payment Method')
-        elif not data.get('description', None):
-            raise RequiredParameters('Payment Method description not informed')
-        url = self.api.make_url(self.base_url_paths)
-        return super(PaymentMethod, self).create(url, data)
+    def add_phone(self, prefix: str, number: str) -> None:
+        phone = {"prefix": type, "number": number}
+        self._phone = phone
 
-    def search(self, id):
-        url = self.api.make_url(self.base_url_paths + [id])
-        return super(PaymentMethod, self).search(url)
+    def set_status(self, status: Literal["active", "inactive"]) -> None:
+        self._status = status
 
-    def change(self, id, description):
-        data = {'description': description}
-        url = self.api.make_url(self.base_url_paths + [id])
-        return super(PaymentMethod, self).change(url, data)
-
-    def remove(self, id):
-        url = self.api.make_url(self.base_url_paths + [id])
-        return super(PaymentMethod, self).remove(url)
-
-    def list(self):
-        url = self.api.make_url(self.base_url_paths)
-        return super(PaymentMethod, self).list(url)
+    def asdict(self) -> dict[str, str | list[dict[str, dict[str, str]]]]:
+        repr = {
+            "email": self.email,
+            "name": self.name,
+            "notes": self.notes,
+            "cpf_cnpj": self.documentation,
+            "cc_emails": "",
+            "zip_code": self.address.zipcode,
+            "number": self.address.number,
+            "street": self.address.street,
+            "city": self.address.city,
+            "state": self.address.state,
+            "district": self.address.neighborhood,
+            "complement": self.address.complement,
+            "custom_variables": [
+                # {"name": "asdf", "value": "asdf"},
+            ],
+        }
+        repr.update(self._phone)
+        return repr
