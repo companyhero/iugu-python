@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 from iugu.address import Address
+from iugu.custom_var import CustomVar
 
 
 @dataclass
@@ -15,13 +16,14 @@ class Customer:
 
     def __post_init__(self) -> None:
         self._phone: dict[str, str] = {}
+        self._custom_vars: dict[str, CustomVar] = {}
         self._status: Literal["active", "inactive"]
 
     def add_phone(self, prefix: str, number: str) -> None:
         self._phone = {"prefix": prefix, "number": number}
 
-    def set_status(self, status: Literal["active", "inactive"]) -> None:
-        self._status = status
+    def add_custom_var(self, name: str, value: str) -> None:
+        self._custom_vars[name] = CustomVar(name=name, value=value)
 
     def asdict(self) -> dict[str, str | list[dict[str, dict[str, str]]]]:
         repr = {
@@ -37,9 +39,10 @@ class Customer:
             "state": self.address.state,
             "district": self.address.neighborhood,
             "complement": self.address.complement,
-            "custom_variables": [
-                # {"name": "asdf", "value": "asdf"},
-            ],
         }
         repr.update(self._phone)
+        if self._custom_vars:
+            repr["custom_variables"] = [
+                var.asdict() for var in self._custom_vars.values()
+            ]
         return repr
