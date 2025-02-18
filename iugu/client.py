@@ -1,7 +1,5 @@
 from iugu.handlers.customer_handler import CustomerHandler
-from iugu.handlers.plan_handler import PlanHandler
-from iugu.handlers.product_handler import ProductHandler
-from iugu.handlers.subscription_handler import SubscriptionHandler
+from iugu.handlers.invoice_handler import InvoiceHandler
 from iugu.http_client.httpx_client import HttpxClient
 from iugu.http_client.protocols import HttpClient
 
@@ -26,13 +24,5 @@ class Client:
         return CustomerHandler(http_client=self._http_client, config=self._config)
 
     @property
-    def product(self) -> ProductHandler:
-        return ProductHandler(http_client=self._http_client, config=self._config)
-
-    @property
-    def plan(self) -> PlanHandler:
-        return PlanHandler(http_client=self._http_client, config=self._config)
-
-    @property
-    def subscription(self) -> SubscriptionHandler:
-        return SubscriptionHandler(http_client=self._http_client, config=self._config)
+    def invoice(self) -> InvoiceHandler:
+        return InvoiceHandler(http_client=self._http_client, config=self._config)
