@@ -18,8 +18,7 @@ class Customer:
         self._status: Literal["active", "inactive"]
 
     def add_phone(self, prefix: str, number: str) -> None:
-        phone = {"prefix": type, "number": number}
-        self._phone = phone
+        self._phone = {"prefix": prefix, "number": number}
 
     def set_status(self, status: Literal["active", "inactive"]) -> None:
         self._status = status
