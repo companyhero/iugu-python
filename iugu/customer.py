@@ -1,6 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Literal
-from uuid import uuid1
+from typing import Literal
 
 from iugu.address import Address
 
@@ -11,8 +10,8 @@ class Customer:
     email: str
     documentation: str
     address: Address
-    code: Any = uuid1()
-    notes: str = ""
+    notes: str = "Finance Integration for Iugu"
+    id: str = ""
 
     def __post_init__(self) -> None:
         self._phone: dict[str, str] = {}
