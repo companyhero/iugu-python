@@ -43,11 +43,8 @@ class InvoiceHandler(BaseHandler):
         payload = {
           "months": invoice.max_installments_value,
           "method": invoice.payable_with,
-          "token": credit_card_token,
-          "customer_payment_method_id": payment_profile_id,
           "restrict_payment_method": True,
           "customer_id": invoice.customer.id,
-          # "invoice_id": "invoice_id_if_previously_created",
           "email": invoice.customer.email,
           "discount_cents": invoice.discount_cents,
           "bank_slip_extra_days": 3,
@@ -67,9 +64,14 @@ class InvoiceHandler(BaseHandler):
                   "complement": invoice.customer.address.complement,
               },
           },
-          # "order_id": "order_id",
           # "soft_descriptor_light": "descrição_da_cobrança"
         }
+        if invoice.subscription_id:
+            payload["order_id"] = invoice.subscription_id
+        if credit_card_token:
+            payload["token"] = credit_card_token
+        if payment_profile_id:
+            payload["customer_payment_method_id"] = payment_profile_id
         ENDPOINT = "/v1/charge"
         output = await self.request(
             method="post",
