@@ -24,6 +24,7 @@ class InvoiceHandler(BaseHandler):
         payload = {
           "invoice_id": invoice.id
         }
+        assert not (credit_card_token and payment_profile_id), "choose between credit_card_token or customer_payment_method_id"
         if credit_card_token:
             payload["token"] = credit_card_token
         if payment_profile_id:
@@ -66,6 +67,7 @@ class InvoiceHandler(BaseHandler):
           },
           # "soft_descriptor_light": "descrição_da_cobrança"
         }
+        assert not (credit_card_token and payment_profile_id), "choose between credit_card_token or customer_payment_method_id"
         if invoice.subscription_id:
             payload["order_id"] = invoice.subscription_id
         if credit_card_token:
