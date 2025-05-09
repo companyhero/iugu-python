@@ -28,7 +28,7 @@ class InvoiceHandler(BaseHandler):
             payload["token"] = credit_card_token
         if payment_profile_id:
             payload["customer_payment_method_id"] = payment_profile_id
-        ENDPOINT = "/charge"
+        ENDPOINT = "/v1/charge"
         output = await self.request(
             method="post",
             url=self._config.get_environ_url() + ENDPOINT,
@@ -70,7 +70,7 @@ class InvoiceHandler(BaseHandler):
           # "order_id": "order_id",
           # "soft_descriptor_light": "descrição_da_cobrança"
         }
-        ENDPOINT = "/charge"
+        ENDPOINT = "/v1/charge"
         output = await self.request(
             method="post",
             url=self._config.get_environ_url() + ENDPOINT,
