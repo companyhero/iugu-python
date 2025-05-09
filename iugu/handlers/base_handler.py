@@ -2,6 +2,7 @@ from abc import ABC, abstractproperty
 from typing import Callable, Literal
 
 from iugu.config import Config
+from iugu.errors import ApiError
 from iugu.http_client.http_response import HttpResponse
 from iugu.http_client.protocols import HttpClient
 
@@ -26,4 +27,10 @@ class BaseHandler(ABC):
         self._http_client.authenticate(
             type="basic", username=self._config.get_api_key(), password=""
         )
-        return await http_method(url=url, json=json, headers={}, files=files)
+        response = await http_method(url=url, json=json, headers={}, files=files)
+        await self._check_errors_in_response(response)
+        return response
+
+    async def _check_errors_in_response(self, response: HttpResponse) -> None:
+        if response.json.get("errors", {}):
+            raise ApiError(response.json.get("errors", "unknow error"))

@@ -10,15 +10,11 @@ class InvoiceHandler(BaseHandler):
         return "/v1/invoices/"
 
     async def create_invoice(self, invoice: Invoice) -> HttpResponse:
-        output = await self.request(
+        return await self.request(
             method="post",
             url=self._config.get_environ_url() + self.base_endpoint,
             json=invoice.asdict(),
         )
-        if "errors" in output.json:
-            raise ApiError(output.json.get("errors", "unknow error"))
-        return output
-
 
     async def charge_invoice(self, invoice: Invoice, credit_card_token: str = "", payment_profile_id: str = "") -> HttpResponse:
         payload = {
@@ -30,20 +26,17 @@ class InvoiceHandler(BaseHandler):
         if payment_profile_id:
             payload["customer_payment_method_id"] = payment_profile_id
         ENDPOINT = "/v1/charge"
-        output = await self.request(
+        return await self.request(
             method="post",
             url=self._config.get_environ_url() + ENDPOINT,
             json=payload,
         )
-        if "errors" in output.json:
-            raise ApiError(output.json.get("errors", "unknow error"))
-        return output
 
 
     async def create_and_charge_invoice(self, invoice: Invoice, credit_card_token: str = "", payment_profile_id: str = "") -> HttpResponse:
         payload = {
           "months": invoice.max_installments_value,
-          "method": invoice.payable_with,
+          "method": "bank_slip",
           "restrict_payment_method": True,
           "customer_id": invoice.customer.id,
           "email": invoice.customer.email,
@@ -72,25 +65,22 @@ class InvoiceHandler(BaseHandler):
             payload["order_id"] = invoice.subscription_id
         if credit_card_token:
             payload["token"] = credit_card_token
+            del payload["method"]
         if payment_profile_id:
             payload["customer_payment_method_id"] = payment_profile_id
+            del payload["method"]
+        print(payload)
         ENDPOINT = "/v1/charge"
-        output = await self.request(
+        return await self.request(
             method="post",
             url=self._config.get_environ_url() + ENDPOINT,
             json=payload,
         )
-        if "errors" in output.json:
-            raise ApiError(output.json.get("errors", "unknow error"))
-        return output
 
     async def cancel_invoice(self, id: str) -> HttpResponse:
         """https://api.iugu.com/v1/invoices/{id}/cancel"""
-        output = await self.request(
+        return await self.request(
             method="put",
             url=self._config.get_environ_url() + self.base_endpoint + id + "/cancel",
             json={},
         )
-        if "errors" in output.json:
-            raise ApiError(output.json.get("errors", "unknow error"))
-        return output
