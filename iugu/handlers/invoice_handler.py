@@ -20,6 +20,25 @@ class InvoiceHandler(BaseHandler):
         return output
 
 
+    async def charge_invoice(self, invoice: Invoice, credit_card_token: str = "", payment_profile_id: str = "") -> HttpResponse:
+        payload = {
+          "invoice_id": invoice.id
+        }
+        if credit_card_token:
+            payload["token"] = credit_card_token
+        if payment_profile_id:
+            payload["customer_payment_method_id"] = payment_profile_id
+        ENDPOINT = "/charge"
+        output = await self.request(
+            method="post",
+            url=self._config.get_environ_url() + ENDPOINT,
+            json=payload,
+        )
+        if "errors" in output.json:
+            raise ApiError(output.json.get("errors", "unknow error"))
+        return output
+
+
     async def create_and_charge_invoice(self, invoice: Invoice, credit_card_token: str = "", payment_profile_id: str = "") -> HttpResponse:
         payload = {
           "months": invoice.max_installments_value,
