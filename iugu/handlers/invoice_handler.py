@@ -19,6 +19,48 @@ class InvoiceHandler(BaseHandler):
             raise ApiError(output.json.get("errors", "unknow error"))
         return output
 
+
+    async def create_and_charge_invoice(self, invoice: Invoice, credit_card_token: str = "", payment_profile_id: str = "") -> HttpResponse:
+        payload = {
+          "months": invoice.max_installments_value,
+          "method": invoice.payable_with,
+          "token": credit_card_token,
+          "customer_payment_method_id": payment_profile_id,
+          "restrict_payment_method": True,
+          "customer_id": invoice.customer.id,
+          # "invoice_id": "invoice_id_if_previously_created",
+          "email": invoice.customer.email,
+          "discount_cents": invoice.discount_cents,
+          "bank_slip_extra_days": 3,
+          "keep_dunning": True,
+          "items": [item.asdict() for item in invoice.items],
+          "payer": {
+              "cpf_cnpj": invoice.customer.documentation,
+              "name": invoice.customer.name,
+              "email": invoice.customer.email,
+              "address": {
+                  "zip_code": invoice.customer.address.zipcode,
+                  "street": invoice.customer.address.street,
+                  "number": invoice.customer.address.number,
+                  "district": invoice.customer.address.neighborhood,
+                  "city": invoice.customer.address.city,
+                  "state": invoice.customer.address.state,
+                  "complement": invoice.customer.address.complement,
+              },
+          },
+          # "order_id": "order_id",
+          # "soft_descriptor_light": "descrição_da_cobrança"
+        }
+        ENDPOINT = "/charge"
+        output = await self.request(
+            method="post",
+            url=self._config.get_environ_url() + ENDPOINT,
+            json=payload,
+        )
+        if "errors" in output.json:
+            raise ApiError(output.json.get("errors", "unknow error"))
+        return output
+
     async def cancel_invoice(self, id: str) -> HttpResponse:
         """https://api.iugu.com/v1/invoices/{id}/cancel"""
         output = await self.request(
