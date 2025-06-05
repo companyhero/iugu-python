@@ -106,3 +106,10 @@ class CustomerHandler(BaseHandler):
         if "errors" in output.json:
             raise ApiError(output.json.get("errors", "unknown error"))
         return output
+
+    async def get_client(self, id: str) -> Any:
+        url = f"{self._config.get_environ_url()}{self.base_endpoint}{id}"
+        output = await self.request(method="get", url=url)
+        if "errors" in output.json:
+            raise ApiError(output.json.get("errors", "unknow error"))
+        return output

@@ -16,22 +16,17 @@ class InvoiceHandler(BaseHandler):
             json=invoice.asdict(),
         )
 
-    async def charge_invoice(self, invoice: Invoice, credit_card_token: str = "", payment_profile_id: str = "") -> HttpResponse:
+    async def charge_invoice(self, invoice_id: str, payment_profile_id: str) -> HttpResponse:
         payload = {
-          "invoice_id": invoice.id
+          "invoice_id": invoice_id,
+          "customer_payment_method_id": payment_profile_id,
         }
-        assert not (credit_card_token and payment_profile_id), "choose between credit_card_token or customer_payment_method_id"
-        if credit_card_token:
-            payload["token"] = credit_card_token
-        if payment_profile_id:
-            payload["customer_payment_method_id"] = payment_profile_id
         ENDPOINT = "/v1/charge"
         return await self.request(
             method="post",
             url=self._config.get_environ_url() + ENDPOINT,
             json=payload,
         )
-
 
     async def create_and_charge_invoice(self, invoice: Invoice, credit_card_token: str = "", payment_profile_id: str = "") -> HttpResponse:
         payload = {
