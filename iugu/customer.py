@@ -15,7 +15,6 @@ class Customer:
     notes: str = "Finance Integration for Iugu"
     id: str = ""
     updated_at: str | None = ""       # novo campo, pode usar datetime se quiser
-    note: str | None = None
 
     def __post_init__(self) -> None:
         self._phone: dict[str, str] = {}
