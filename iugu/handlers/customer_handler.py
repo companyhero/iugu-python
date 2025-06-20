@@ -76,6 +76,10 @@ class CustomerHandler(BaseHandler):
                 name=c.get("name"),
                 email=c.get("email"),
                 documentation=c.get("cpf_cnpj"),
+                default_payment_method_id=c.get("default_payment_method_id", ""),
+                notes=c.get("notes", "Finance Integration for Iugu"),
+                id=c.get("id", ""),
+                updated_at=c.get("updated_at", ""),
                 address=Address(
                     street=c.get("street"),
                     state=c.get("state"),
