@@ -76,11 +76,10 @@ class CustomerHandler(BaseHandler):
                 name=c.get("name"),
                 email=c.get("email"),
                 documentation=c.get("cpf_cnpj"),
-                code=c.get("code"),
                 address=Address(
                     street=c.get("street"),
                     state=c.get("state"),
-                    neighborhood=c.get("neighborhood"),
+                    neighborhood=c.get("district"),
                     city=c.get("city"),
                     zipcode=c.get("zip_code"),
                     complement=c.get("complement"),
