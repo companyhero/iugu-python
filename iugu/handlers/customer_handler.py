@@ -66,8 +66,8 @@ class CustomerHandler(BaseHandler):
         if updated_since:
             updated_since += f"&updated_since={updated_since}"
         output = await self.request(method="get", url=url)
-        if "errors" in output.json:
-            raise ApiError(output.json.get("errors", "unknow error"))
+        if "error" in output.json:
+            raise ApiError(output.json.get("error", "unknow error"))
         raw_customers = output.json.get("items", [])
         print(raw_customers)
         customers: list[Customer] = []
