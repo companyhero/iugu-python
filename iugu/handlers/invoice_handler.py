@@ -22,10 +22,12 @@ class InvoiceHandler(BaseHandler):
           "customer_payment_method_id": payment_profile_id,
         }
         ENDPOINT = "/v1/charge"
+        print(f'fazendo charge_invoice: {payload}')
         return await self.request(
             method="post",
             url=self._config.get_environ_url() + ENDPOINT,
             json=payload,
+            timeout=30,
         )
 
     async def create_and_charge_invoice(self, invoice: Invoice, credit_card_token: str = "", payment_profile_id: str = "") -> HttpResponse:
