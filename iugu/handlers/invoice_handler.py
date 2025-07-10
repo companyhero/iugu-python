@@ -20,7 +20,7 @@ class InvoiceHandler(BaseHandler):
         payload = {
             "invoice_id": invoice_id,
             "customer_payment_method_id": payment_profile_id,
-            "months": months,
+            "months": months, # Installments param
         }
         ENDPOINT = "/v1/charge"
         print(f'fazendo charge_invoice: {payload}')
