@@ -16,10 +16,11 @@ class InvoiceHandler(BaseHandler):
             json=invoice.asdict(),
         )
 
-    async def charge_invoice(self, invoice_id: str, payment_profile_id: str) -> HttpResponse:
+    async def charge_invoice(self, invoice_id: str, payment_profile_id: str, months: int = 1) -> HttpResponse:
         payload = {
-          "invoice_id": invoice_id,
-          "customer_payment_method_id": payment_profile_id,
+            "invoice_id": invoice_id,
+            "customer_payment_method_id": payment_profile_id,
+            "months": months, # Installments param
         }
         ENDPOINT = "/v1/charge"
         print(f'fazendo charge_invoice: {payload}')
@@ -28,6 +29,7 @@ class InvoiceHandler(BaseHandler):
             url=self._config.get_environ_url() + ENDPOINT,
             json=payload,
         )
+
 
     async def create_and_charge_invoice(self, invoice: Invoice, credit_card_token: str = "", payment_profile_id: str = "") -> HttpResponse:
         payload = {
