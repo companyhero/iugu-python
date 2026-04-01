@@ -16,6 +16,14 @@ class InvoiceHandler(BaseHandler):
             json=invoice.asdict(),
         )
 
+    async def get_invoice(self, id: str) -> HttpResponse:
+        """GET https://api.iugu.com/v1/invoices/{id}"""
+        return await self.request(
+            method="get",
+            url=self._config.get_environ_url() + self.base_endpoint + id,
+            json={},
+        )
+
     async def charge_invoice(self, invoice_id: str, payment_profile_id: str, months: int = 1) -> HttpResponse:
         payload = {
             "invoice_id": invoice_id,
