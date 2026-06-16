@@ -2,7 +2,7 @@ from abc import ABC, abstractproperty
 from typing import Callable, Literal
 
 from iugu.config import Config
-from iugu.errors import ApiError
+from iugu.errors import ApiError, format_api_error_message
 from iugu.http_client.http_response import HttpResponse
 from iugu.http_client.protocols import HttpClient
 
@@ -32,5 +32,6 @@ class BaseHandler(ABC):
         return response
 
     async def _check_errors_in_response(self, response: HttpResponse) -> None:
-        if response.json.get("errors", {}):
-            raise ApiError(response.json.get("errors", "unknow error"))
+        error_message = format_api_error_message(response.json)
+        if error_message:
+            raise ApiError(error_message)
