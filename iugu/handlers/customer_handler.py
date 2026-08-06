@@ -93,6 +93,35 @@ class CustomerHandler(BaseHandler):
             customers.append(customer)
         return customers
 
+    async def create_payment_method(
+        self,
+        customer_id: str,
+        token: str,
+        description: str = "Cartão de crédito",
+        set_as_default: bool = True,
+    ) -> Any:
+        """Attach a tokenized card as a customer payment method.
+
+        Uses Iugu endpoint POST /v1/customers/{customer_id}/payment_methods.
+        See: https://dev.iugu.com/reference/criar-forma-de-pagamento
+        """
+        url = (
+            f"{self._config.get_environ_url()}"
+            f"{self.base_endpoint}{customer_id}/payment_methods"
+        )
+        output = await self.request(
+            method="post",
+            url=url,
+            json={
+                "description": description,
+                "token": token,
+                "set_as_default": set_as_default,
+            },
+        )
+        if "errors" in output.json:
+            raise ApiError(output.json.get("errors", "unknown error"))
+        return output
+
     async def create_payment_profile(
         self, gateway_token: str, customer_id: str, payment_method_code: str
     ) -> Any:
