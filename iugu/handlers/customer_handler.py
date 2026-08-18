@@ -122,6 +122,34 @@ class CustomerHandler(BaseHandler):
             raise ApiError(output.json.get("errors", "unknown error"))
         return output
 
+    async def list_payment_methods(self, customer_id: str) -> list[Any]:
+        """List payment methods for an Iugu customer.
+
+        Uses Iugu endpoint GET /v1/customers/{customer_id}/payment_methods.
+        See: https://dev.iugu.com/reference/listar-forma-de-pagamento
+        """
+        url = (
+            f"{self._config.get_environ_url()}"
+            f"{self.base_endpoint}{customer_id}/payment_methods"
+        )
+        output = await self.request(method="get", url=url)
+        return self._normalize_payment_methods_payload(output.json)
+
+    @staticmethod
+    def _normalize_payment_methods_payload(payload: Any) -> list[Any]:
+        """Iugu returns a list, {items: [...]}, or {} when the customer has no cards."""
+        if not payload:
+            return []
+        if isinstance(payload, list):
+            return payload
+        if isinstance(payload, dict):
+            errors = payload.get("errors")
+            if errors:
+                raise ApiError(errors)
+            items = payload.get("items") or payload.get("payment_methods") or []
+            return items if isinstance(items, list) else []
+        return []
+
     async def create_payment_profile(
         self, gateway_token: str, customer_id: str, payment_method_code: str
     ) -> Any:
